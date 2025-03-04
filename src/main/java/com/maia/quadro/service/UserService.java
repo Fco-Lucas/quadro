@@ -1,6 +1,6 @@
 package com.maia.quadro.service;
 
-import com.maia.quadro.exception.customException.DatabaseViolationException;
+import com.maia.quadro.exception.customException.EntityExistsException;
 import com.maia.quadro.model.User;
 import com.maia.quadro.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,7 +23,7 @@ public class UserService {
         try {
             return userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
-            throw new DatabaseViolationException(String.format("Usuário com CPF: {%s} já cadastado no sistema", user.getCpf()));
+            throw new EntityExistsException(String.format("Usuário com CPF: {%s} já cadastado no sistema", user.getCpf()));
         }
     }
 
