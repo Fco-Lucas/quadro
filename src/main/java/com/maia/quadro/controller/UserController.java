@@ -7,7 +7,7 @@ import com.maia.quadro.dto.user.UserUpdateInfoDto;
 import com.maia.quadro.dto.user.UserUpdatePasswordDto;
 import com.maia.quadro.mapper.PagebleMapper;
 import com.maia.quadro.mapper.UserMapper;
-import com.maia.quadro.model.User;
+import com.maia.quadro.model.AppUser;
 import com.maia.quadro.repository.projection.UserProjection;
 import com.maia.quadro.service.UserService;
 import jakarta.validation.Valid;
@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,8 +30,8 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<UserResponseDto> create(@RequestBody @Valid UserCreateDto dto) {
-        User user = userService.create(UserMapper.toUser(dto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
+        AppUser appUser = userService.create(UserMapper.toUser(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(appUser));
     }
 
     @GetMapping()
@@ -44,8 +43,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable UUID id) {
-        User user = userService.getById(id);
-        return ResponseEntity.ok(UserMapper.toDto(user));
+        AppUser appUser = userService.getById(id);
+        return ResponseEntity.ok(UserMapper.toDto(appUser));
     }
 
     @PatchMapping("/{id}")
