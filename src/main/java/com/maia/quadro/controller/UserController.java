@@ -1,16 +1,24 @@
 package com.maia.quadro.controller;
 
+import com.maia.quadro.dto.PageableDto;
 import com.maia.quadro.dto.user.UserCreateDto;
 import com.maia.quadro.dto.user.UserResponseDto;
+import com.maia.quadro.dto.user.UserUpdateInfoDto;
+import com.maia.quadro.dto.user.UserUpdatePasswordDto;
+import com.maia.quadro.mapper.PagebleMapper;
 import com.maia.quadro.mapper.UserMapper;
 import com.maia.quadro.model.User;
+import com.maia.quadro.repository.projection.UserProjection;
 import com.maia.quadro.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -28,9 +36,33 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<User>> getAll() {
-        List<User> users = userService.getAll();
+    public ResponseEntity<PageableDto> getAll(Pageable pageable) {
+        Page<UserProjection> users = userService.getAll(pageable);
 
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(PagebleMapper.toDto(users));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> getById(@PathVariable UUID id) {
+        User user = userService.getById(id);
+        return ResponseEntity.ok(UserMapper.toDto(user));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateInfo(@PathVariable UUID id, @RequestBody @Valid UserUpdateInfoDto dto) {
+        userService.updateInfo(id, dto.getName(), dto.getRole(), dto.getSectorId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/updatePassword")
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserUpdatePasswordDto dto) {
+        userService.updatePassword(dto.getId(), dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmNewPassword());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
