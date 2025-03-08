@@ -8,6 +8,7 @@ import com.maia.quadro.model.AppUser;
 import com.maia.quadro.model.Sector;
 import com.maia.quadro.repository.UserRepository;
 import com.maia.quadro.repository.projection.UserProjection;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,10 @@ public class UserService {
 
     @Transactional(readOnly = false)
     public AppUser createAdmin(AppUser appUser) {
+        // Verifica se já existe um usuário 'ADMIN' cadastrado
+        Optional<AppUser> existsUserAdmin = userRepository.findByRoleAndStatus(UserRole.ADMIN, UserStatus.ACTIVE);
+        if(existsUserAdmin.isPresent()) throw new DataIntegrityViolationException("Apenas 1 usuário com role: 'ADMIN' pode ser cadastrado no sistema");
+
         // Busca o setor com ID '1'
         Sector sector = sectorService.getById(1L);
         Long sectorId = sector.getId();
@@ -53,9 +58,15 @@ public class UserService {
 
     @Transactional(readOnly = false)
     public AppUser create(AppUser appUser) {
+        // Se estiver tentando cadastrar um usuário ADMIN não permite
+        if(appUser.getRole().name().equals("ADMIN")) throw new DataIntegrityViolationException("Para cadastrar um usuário com role 'ADMIN' utilize o endpoint /createAdmin");
+
         // Busca o setor e verifica se ele existe
         Sector sector = sectorService.getById(appUser.getSectorId());
+
+        // Verifica se já existe um usuário cadastrado com o CPF informado
         if(getByCpf(appUser.getCpf(), UserStatus.ACTIVE)) throw new EntityExistsException(String.format("Usuário com CPF: {%s} já cadastrado no sistema", appUser.getCpf()));
+
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         return userRepository.save(appUser);
     }
