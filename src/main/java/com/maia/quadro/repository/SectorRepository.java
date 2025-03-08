@@ -9,10 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
-public interface SectorRepository extends JpaRepository<Sector, BigInteger> {
+public interface SectorRepository extends JpaRepository<Sector, Long> {
     Optional<Sector> findByNameAndStatus(String name, SectorStatus status);
 
     @Query("SELECT s FROM Sector s WHERE s.status = :status")

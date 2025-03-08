@@ -6,12 +6,12 @@ import com.maia.quadro.exception.customException.EntityNotFoundException;
 import com.maia.quadro.model.Sector;
 import com.maia.quadro.repository.SectorRepository;
 import com.maia.quadro.repository.projection.SectorProjection;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
 @Service
@@ -45,14 +45,14 @@ public class SectorService {
     }
 
     @Transactional(readOnly = true)
-    public Sector getById(BigInteger id) {
+    public Sector getById(Long id) {
         return sectorRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Setor com id: {%s} não encontrado", id))
         );
     }
 
     @Transactional(readOnly = false)
-    public void update(BigInteger id, String name) {
+    public void update(Long id, String name) {
         Sector sector = getById(id);
 
         if(this.getByName(name)) throw new EntityExistsException(String.format("Já existe um setor criado com nome: {%s}", name));
@@ -62,7 +62,8 @@ public class SectorService {
     }
 
     @Transactional(readOnly = false)
-    public void delete(BigInteger id) {
+    public void delete(Long id) {
+        if(id == 1) throw new DataIntegrityViolationException("Não é permitida a exclusão do setor default da aplicação");
         Sector sector = getById(id);
         sector.setStatus(SectorStatus.INACTIVE);
         sectorRepository.save(sector);

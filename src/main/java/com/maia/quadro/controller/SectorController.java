@@ -18,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
-
 @Tag(name = "Sectors", description = "Contém todas as operações relacionadas aos recursos dos setores do quadro de chamados")
 @RestController
 @RequestMapping("api/v1/sectors")
@@ -47,21 +45,21 @@ public class SectorController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<SectorResponseDto> getById(@PathVariable BigInteger id) {
+    public ResponseEntity<SectorResponseDto> getById(@PathVariable Long id) {
         Sector sector = sectorService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(SectorMapper.toDto(sector));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<Void> update(@PathVariable BigInteger id, @RequestBody @Valid SectorUpdateDto dto) {
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Valid SectorUpdateDto dto) {
         sectorService.update(id, dto.getName());
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable BigInteger id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         sectorService.delete(id);
         return ResponseEntity.noContent().build();
     }

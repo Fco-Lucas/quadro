@@ -4,7 +4,6 @@ import com.maia.quadro.enums.SectorStatus;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Objects;
 
 @Entity
@@ -14,7 +13,7 @@ public class Sector implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "BigInt")
-    private BigInteger id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -26,13 +25,13 @@ public class Sector implements Serializable {
     public Sector() {
     }
 
-    public Sector(BigInteger id, String name, SectorStatus status) {
+    public Sector(Long id, String name, SectorStatus status) {
         this.id = id;
         this.name = name;
         this.status = status;
     }
 
-    public BigInteger getId() {
+    public Long getId() {
         return id;
     }
 
@@ -44,7 +43,7 @@ public class Sector implements Serializable {
         return status;
     }
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

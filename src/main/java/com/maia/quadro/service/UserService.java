@@ -5,6 +5,7 @@ import com.maia.quadro.enums.UserStatus;
 import com.maia.quadro.exception.customException.EntityExistsException;
 import com.maia.quadro.exception.customException.EntityNotFoundException;
 import com.maia.quadro.model.AppUser;
+import com.maia.quadro.model.Sector;
 import com.maia.quadro.repository.UserRepository;
 import com.maia.quadro.repository.projection.UserProjection;
 import org.springframework.data.domain.Page;
@@ -20,10 +21,12 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SectorService sectorService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, SectorService sectorService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.sectorService = sectorService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -35,7 +38,23 @@ public class UserService {
     }
 
     @Transactional(readOnly = false)
+    public AppUser createAdmin(AppUser appUser) {
+        // Busca o setor com ID '1'
+        Sector sector = sectorService.getById(1L);
+        Long sectorId = sector.getId();
+
+        // Verifica se já existe um usuário cadastrado com o CPF informado
+        if(getByCpf(appUser.getCpf(), UserStatus.ACTIVE)) throw new EntityExistsException(String.format("Usuário com CPF: {%s} já cadastrado no sistema", appUser.getCpf()));
+        appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
+        appUser.setRole(UserRole.ADMIN);
+        appUser.setSectorId(sectorId);
+        return userRepository.save(appUser);
+    }
+
+    @Transactional(readOnly = false)
     public AppUser create(AppUser appUser) {
+        // Busca o setor e verifica se ele existe
+        Sector sector = sectorService.getById(appUser.getSectorId());
         if(getByCpf(appUser.getCpf(), UserStatus.ACTIVE)) throw new EntityExistsException(String.format("Usuário com CPF: {%s} já cadastrado no sistema", appUser.getCpf()));
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         return userRepository.save(appUser);
