@@ -16,6 +16,8 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<AppUser, UUID> {
     Optional<AppUser> findByCpfAndStatus(String cpf, UserStatus status);
 
+    Optional<AppUser> findByRoleAndStatus(UserRole role, UserStatus status);
+
     @Query("SELECT u FROM AppUser u WHERE u.status = :status")
     Page<UserProjection> findAllPageable(@Param("status") UserStatus status, Pageable pageable);
 
