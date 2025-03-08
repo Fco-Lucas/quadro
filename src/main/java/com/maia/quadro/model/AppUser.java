@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,7 +14,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+@EntityListeners(AuditingEntityListener.class)
+public class AppUser implements Serializable {
 
     @Id
     @GeneratedValue
@@ -23,7 +25,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 11)
+    @Column(nullable = false, length = 11)
     private String cpf;
 
     @Column(nullable = false)
@@ -41,9 +43,9 @@ public class User implements Serializable {
     private UserStatus status = UserStatus.ACTIVE;
 
     // Construtor padrão necessário para o JPA
-    public User() {}
+    public AppUser() {}
 
-    public User(String name, String cpf, String password, UserRole role, Long sectorId) {
+    public AppUser(String name, String cpf, String password, UserRole role, Long sectorId) {
         this.name = name;
         this.cpf = cpf;
         this.password = password;
@@ -111,8 +113,8 @@ public class User implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
+        AppUser appUser = (AppUser) o;
+        return Objects.equals(id, appUser.id);
     }
 
     @Override
