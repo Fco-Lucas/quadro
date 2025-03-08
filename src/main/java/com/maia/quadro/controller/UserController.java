@@ -43,6 +43,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<PageableDto> getAll(Pageable pageable) {
         Page<UserProjection> users = userService.getAll(pageable);
 
@@ -50,24 +51,35 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDto> getById(@PathVariable UUID id) {
         AppUser appUser = userService.getById(id);
         return ResponseEntity.ok(UserMapper.toDto(appUser));
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> updateInfo(@PathVariable UUID id, @RequestBody @Valid UserUpdateInfoDto dto) {
         userService.updateInfo(id, dto.getName(), dto.getRole(), dto.getSectorId());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/updatePassword")
+    @PreAuthorize("#dto.id == authentication.principal.id")
     public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserUpdatePasswordDto dto) {
         userService.updatePassword(dto.getId(), dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmNewPassword());
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/restorePassword/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN') and #id ne authentication.principal.id")
+    public ResponseEntity<Void> restorePassword(@PathVariable UUID id) {
+        userService.restorePassword(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();

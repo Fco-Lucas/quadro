@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,8 @@ public interface UserRepository extends JpaRepository<AppUser, UUID> {
     Optional<AppUser> findByCpfAndStatus(String cpf, UserStatus status);
 
     Optional<AppUser> findByRoleAndStatus(UserRole role, UserStatus status);
+
+    List<AppUser> findBySectorIdAndStatus(Long sectorId, UserStatus status);
 
     @Query("SELECT u FROM AppUser u WHERE u.status = :status")
     Page<UserProjection> findAllPageable(@Param("status") UserStatus status, Pageable pageable);

@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -102,6 +103,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = false)
+    public void restorePassword(UUID id) {
+        AppUser appUser = getById(id);
+        String newPassword = passwordEncoder.encode("123456");
+        appUser.setPassword(newPassword);
+        userRepository.save(appUser);
+    }
+
+    @Transactional(readOnly = false)
     public void delete(UUID id) {
         AppUser appUser = getById(id);
         appUser.setStatus(UserStatus.INACTIVE);
@@ -118,5 +127,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserRole getRoleByCpf(String cpf) {
         return userRepository.findRoleByCpf(cpf, UserStatus.ACTIVE);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppUser> getUsersBySectorId(Long sectorId) {
+        // Verifica primeiro se o setor existe
+        Sector sector = sectorService.getById(sectorId);
+        return userRepository.findBySectorIdAndStatus(sectorId, UserStatus.ACTIVE);
     }
 }
